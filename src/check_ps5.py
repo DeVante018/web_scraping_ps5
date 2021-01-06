@@ -14,7 +14,7 @@ headers = {
 }
 version = 10 # This is to change the user agent because amazon catches and send a different html file
 audio_file = "/Users/devantefrederick/IdeaProjects/web_scraping/src/Popular_Alarm_Clock_Sound_Effect.mp3"
-password = "Google2020!"
+password = ""
 port = 465  # For SSL
 # Create a secure SSL context
 context = ssl.create_default_context()
@@ -53,7 +53,7 @@ def best_buy(url, count):
             server.login("notsecurecodingemail@gmail.com", password)
             sender_email = "notsecurecodingemail@gmail.com"
             message = "404 Best Buy, check site\nhttps://www.bestbuy.com/site/sony-playstation-5-console/6426149.p?skuId=6426149\n"
-            server.sendmail(sender_email, devante, message)
+            # server.sendmail(sender_email, devante, message)
         return False
 
     try:
@@ -136,7 +136,6 @@ def walmart(url, count):
     except:
         print('\033[95m'+"Timeout has occurred: Walmart ", count)
         return False
-
     if str(result) != "<Response [200]>":
         print('\033[95m'+"Not Found 404 (Walmart)")
         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
@@ -179,7 +178,7 @@ def game_stop(url, count):
         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
             server.login("notsecurecodingemail@gmail.com", password)
             sender_email = "notsecurecodingemail@gmail.com"
-            message = "404 GameStop, check site: https\n//www.gamestop.com/video-games/playstation-5/consoles/products/playstation-5/11108140.html\n"
+            message = "404 GameStop, check site\nhttps//www.gamestop.com/video-games/playstation-5/consoles/products/playstation-5/11108140.html\n"
             # server.sendmail(sender_email, devante, message)
         return False
 
