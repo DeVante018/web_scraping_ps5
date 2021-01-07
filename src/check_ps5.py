@@ -6,13 +6,12 @@ import requests
 import subprocess
 import time
 
+usr_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
 
-usr_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) " "Chrome/87.0" \
-             ".4280.88 Safari/537.36"'Chrome/50.0.2661.102 Safari/537.36'
 headers = {
     'User-Agent': usr_agent
 }
-version = 10 # This is to change the user agent because amazon catches and send a different html file
+version = 10  # This is to change the user agent because amazon catches and send a different html file
 audio_file = "/Users/devantefrederick/IdeaProjects/web_scraping/src/Popular_Alarm_Clock_Sound_Effect.mp3"
 password = ""
 port = 465  # For SSL
@@ -20,10 +19,7 @@ port = 465  # For SSL
 context = ssl.create_default_context()
 
 # add friends/family to emailing list and hook the homies up
-devante = "curruption018@gmail.com"
-alycia = "alyciafrederick@msn.com"
-alex = "alexander.gventura15@yahoo.com"
-jude = "judeinnocent22@gmail.com"
+
 
 # so I dont get spammed
 walmart_available = False
@@ -32,9 +28,10 @@ bestbuy_available = False
 amazon_available = False
 playstation_direct_available = False
 
+
 # TODO Check logic to make sure you dont spam yours and others emails
 # TODO Update the "store"_available variables after the ps5 is out of stock
-# TODO Create generic functions for 404 errors and status codes
+# TODO Create generic functions for errors and status codes
 # TODO refactor code base and variable names
 # TODO Add multi-threading for concurrent processes **wait for macbook pro**
 
@@ -44,11 +41,11 @@ def best_buy(url, count):
     try:
         result = requests.get(url, headers=headers)
     except:
-        print('\033[94m'+"Timeout has occurred: Best Buy ", count)
+        print('\033[94m' + "Timeout has occurred: Best Buy ", count)
         return False
 
     if str(result) != "<Response [200]>":
-        print('\033[94m'+"Not Found 404 (Best Buy)")
+        print('\033[94m' + "Not Found 404 (Best Buy)")
         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
             server.login("notsecurecodingemail@gmail.com", password)
             sender_email = "notsecurecodingemail@gmail.com"
@@ -73,21 +70,27 @@ def best_buy(url, count):
         # print(data_sticky)
         div3 = data_sticky.find('div', class_="col-xs-5 col-lg-4")
         # print(div3)
-        div4 = div3.find('div', class_="col-xs-12")
+        row = div3.find('div', class_="row")
+
+        div4 = row.find('div', class_="col-xs-12")
         # print(div4)
         div5 = div4.find('div', class_="v-m-top-m v-p-top-m v-border v-border-top")
         # print(div5.prettify())
-        add_to_cart_button = div5.find('div', class_="fulfillment-add-to-cart-button")
-        button = add_to_cart_button.find('button')
+        add_to_cart_button = div5.find('div', class_="None")
+        fullfill = add_to_cart_button.find('div', class_="fulfillment-add-to-cart-button")
+        find_div = fullfill.find('div')
+        find_div = fullfill.find('div')
+        button = find_div.find('button')
         # print(button.prettify())
         # print(button.text)
 
         if button.text == "Sold Out":
-            print('\033[94m'+"PS5 sold out (Best Buy)   attempt #: ", count)
+            print('\033[94m' + "PS5 sold out (Best Buy)   attempt #: ", count)
             bestbuy_available = False
             return False
         else:
-            print('\033[94m'+"PS5 available at Best Buy :", url)
+            print('\033[94m' + "PS5 available at Best Buy :", url)
+            # print(button.text)
             if not bestbuy_available:
                 with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
                     server.login("notsecurecodingemail@gmail.com", password)
@@ -97,19 +100,19 @@ def best_buy(url, count):
                     server.sendmail(sender_email, alycia, message)
                     server.sendmail(sender_email, alex, message)
                     server.sendmail(sender_email, jude, message)
-            subprocess.call(["afplay", audio_file])
+                subprocess.call(["afplay", audio_file])
             bestbuy_available = True
             return True
     except:
-        print(body.prettify())
-        print('\033[94m'+"Page HTML contents have changed (Best Buy). Check and update at: ", url)
+        # print(body.prettify())
+        print('\033[94m' + "Page HTML contents have changed (Best Buy). Check and update at: ", url)
         # Send notification email
         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
             server.login("notsecurecodingemail@gmail.com", password)
             sender_email = "notsecurecodingemail@gmail.com"
             message = "Page HTML contents have changed (Best Buy)\nhttps://www.bestbuy.com/site/sony-playstation-5-console/6426149.p?skuId=6426149\n"
-            # server.sendmail(sender_email, devante, message)
-        subprocess.call(["afplay", audio_file])
+            server.sendmail(sender_email, devante, message)
+        #subprocess.call(["afplay", audio_file])
         return False
 
 
@@ -134,10 +137,10 @@ def walmart(url, count):
     try:
         result = requests.get(url, headers=headers)
     except:
-        print('\033[95m'+"Timeout has occurred: Walmart ", count)
+        print('\033[95m' + "Timeout has occurred: Walmart ", count)
         return False
     if str(result) != "<Response [200]>":
-        print('\033[95m'+"Not Found 404 (Walmart)")
+        print('\033[95m' + "Not Found 404 (Walmart)")
         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
             server.login("notsecurecodingemail@gmail.com", password)
             sender_email = "notsecurecodingemail@gmail.com"
@@ -150,10 +153,10 @@ def walmart(url, count):
         body = soup.find('body')
         div1 = body.find('div')
         div2 = div1.find('div', class_="error-page-content")
-        print('\033[95m'+"Walmart PS5 landing page is not created yet ", count)
+        print('\033[95m' + "Walmart PS5 landing page is not created yet ", count)
         walmart_available = False
     except:
-        print('\033[95m'+"Page is no longer an error page: Walmart")
+        print('\033[95m' + "Page is no longer an error page: Walmart")
         if not walmart_available:
             with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
                 server.login("notsecurecodingemail@gmail.com", password)
@@ -170,11 +173,11 @@ def game_stop(url, count):
     try:
         result = requests.get(url, headers=headers)
     except:
-        print('\033[92m'+"Timeout has occurred: Gamestop", count)
+        print('\033[92m' + "Timeout has occurred: Gamestop", count)
         return False
 
     if str(result) != "<Response [200]>":
-        print('\033[92m'+"Not Found 404 (Gamestop)")
+        print('\033[92m' + "Not Found 404 (Gamestop)")
         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
             server.login("notsecurecodingemail@gmail.com", password)
             sender_email = "notsecurecodingemail@gmail.com"
@@ -210,11 +213,11 @@ def game_stop(url, count):
         # print(info_jason)
 
         if info_jason["productInfo"]["availability"] == "Not Available":
-            print('\033[92m'+"PS5 sold out (Game Stop)   attempt #: ", count)
+            print('\033[92m' + "PS5 sold out (Game Stop)   attempt #: ", count)
             gamestop_available = False
             return False
         else:
-            print('\033[92m'+"PS5 available at Game Stop :", url)
+            print('\033[92m' + "PS5 available at Game Stop :", url)
             if not gamestop_available:
                 with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
                     server.login("notsecurecodingemail@gmail.com", password)
@@ -229,7 +232,7 @@ def game_stop(url, count):
                 return True
 
     except:
-        print('\033[92m'+"Page HTML contents have changed (GameStop). Check and update at: ", url)
+        print('\033[92m' + "Page HTML contents have changed (GameStop). Check and update at: ", url)
         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
             server.login("notsecurecodingemail@gmail.com", password)
             sender_email = "notsecurecodingemail@gmail.com"
@@ -244,7 +247,7 @@ def amazon(url, count):
     global usr_agent
     global version
     global headers
-    if(count % 100) == 0:
+    if (count % 100) == 0:
         print("Changing user agent to get around Amazon flag...")
         new_list = list(usr_agent)
         new_list[45] = str(version)
@@ -253,10 +256,10 @@ def amazon(url, count):
     try:
         result = requests.get(url, headers=headers)
     except:
-        print('\033[91m'+"Timeout has occurred: Amazon", count)
+        print('\033[91m' + "Timeout has occurred: Amazon", count)
         return False
     if str(result) != "<Response [200]>":
-        print('\033[91m'+"Not Found 404 (Amazon)")
+        print('\033[91m' + "Not Found 404 (Amazon)")
         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
             server.login("notsecurecodingemail@gmail.com", password)
             sender_email = "notsecurecodingemail@gmail.com"
@@ -290,9 +293,9 @@ def amazon(url, count):
         availability = availability.strip()
         # print(availability)
         if availability == "Currently unavailable.":
-            print('\033[91m'+"PS5 sold out (Amazon)   attempt #: ", count)
+            print('\033[91m' + "PS5 sold out (Amazon)   attempt #: ", count)
         else:
-            print('\033[91m'+"PS5 available at Amazon :", url)
+            print('\033[91m' + "PS5 available at Amazon :", url)
             global amazon_available
             if not amazon_available:
                 with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
@@ -320,7 +323,7 @@ def amazon(url, count):
             version += 10
             return False
         else:
-            print('\033[91m'+"Page HTML contents have changed (Amazon). Check and update at: ", url)
+            print('\033[91m' + "Page HTML contents have changed (Amazon). Check and update at: ", url)
             with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
                 server.login("notsecurecodingemail@gmail.com", password)
                 sender_email = "notsecurecodingemail@gmail.com"
@@ -336,11 +339,11 @@ def playstation_direct(url, count):
     try:
         result = requests.get(url, headers=headers)
     except:
-        print('\033[96m'+"Timeout has occurred: Playstation Direct", count)
+        print('\033[96m' + "Timeout has occurred: Playstation Direct", count)
         return False
 
     if str(result) != "<Response [200]>":
-        print('\033[96m'+"Not Found 404 (Playstation Direct)")
+        print('\033[96m' + "Not Found 404 (Playstation Direct)")
         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
             server.login("notsecurecodingemail@gmail.com", password)
             sender_email = "notsecurecodingemail@gmail.com"
@@ -378,10 +381,10 @@ def playstation_direct(url, count):
         stock = div11.find('p', class_="sony-text-body-1")
         # print(stock.text)
         if stock.text == "Out of Stock":
-            print('\033[96m'+"PS5 sold out (Playstation Direct)   attempt #: ", count)
+            print('\033[96m' + "PS5 sold out (Playstation Direct)   attempt #: ", count)
             playstation_direct_available = False
         else:
-            print('\033[96m'+"PS5 available at Playstation Direct :", url)
+            print('\033[96m' + "PS5 available at Playstation Direct :", url)
             if not playstation_direct_available:
                 with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
                     server.login("notsecurecodingemail@gmail.com", password)
@@ -396,7 +399,7 @@ def playstation_direct(url, count):
             return True
 
     except:
-        print('\033[96m'+"Page HTML contents have changed (Playstation Direct). Check and update at: ", url)
+        print('\033[96m' + "Page HTML contents have changed (Playstation Direct). Check and update at: ", url)
         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
             server.login("notsecurecodingemail@gmail.com", password)
             sender_email = "notsecurecodingemail@gmail.com"
@@ -411,8 +414,10 @@ if __name__ == '__main__':
     while True:
         qnt += 1
         best_buy("https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p?skuId=6426149", qnt)
-        game_stop("https://www.gamestop.com/video-games/playstation-5/consoles/products/playstation-5/11108140.html""?condition=New", qnt)
-        playstation_direct("https://direct.playstation.com/en-us/consoles/console/playstation5-console.3005816",qnt)
+        game_stop(
+            "https://www.gamestop.com/video-games/playstation-5/consoles/products/playstation-5/11108140.html""?condition=New",
+            qnt)
+        playstation_direct("https://direct.playstation.com/en-us/consoles/console/playstation5-console.3005816", qnt)
         # amazon("https://www.amazon.com/PlayStation-5-Console/dp/B08FC5L3RG?ref_=ast_sto_dp", qnt)
         walmart("https://www.walmart.com/ip/PlayStation-5-Console", qnt)
-        # time.sleep(0.5)
+        time.sleep(15)  # check in 10 sec intervals
