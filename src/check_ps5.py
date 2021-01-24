@@ -7,23 +7,21 @@ import requests
 import subprocess
 import time
 
-usr_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
+usr_agent = ""
 
-headers = {
-    'User-Agent': usr_agent
-}
 version = 10  # This is to change the user agent because amazon catches and send a different html file
-audio_file = "/Users/devantefrederick/IdeaProjects/web_scraping/src/Popular_Alarm_Clock_Sound_Effect.mp3"
+audio_file = ""
 password = ""
+server_email = ""
 port = 465  # For SSL
 # Create a secure SSL context
 context = ssl.create_default_context()
 
 # add friends/family to emailing list and hook the homies up
-devante =
-alycia =
-alex =
-jude =
+devante = ""
+alycia = ""
+alex = ""
+jude = ""
 
 # so I dont get spammed
 walmart_available = False
@@ -32,18 +30,39 @@ bestbuy_available = False
 amazon_available = False
 playstation_direct_available = False
 
+f = open("credentials.txt", "r")
+count = 1
 
-# TODO Check logic to make sure you dont spam yours and others emails
-# TODO Update the "store"_available variables after the ps5 is out of stock
-# TODO Create generic functions for errors and status codes
-# TODO refactor code base and variable names
-# TODO Add multi-threading for concurrent processes **wait for macbook pro**
+for line in f:
+    # print(line)
+    line = line.strip('\n')
+    if count == 1:
+        usr_agent = line
+    if count == 2:
+        password = line
+    if count == 3:
+        devante = line
+    if count == 4:
+        alycia = line
+    if count == 5:
+        alex = line
+    if count == 6:
+        jude = line
+    if count == 7:
+        audio_file = line
+    if count == 8:
+        server_email = line
+    count += 1
+
+
+headers = {
+    'User-Agent': usr_agent
+}
 
 
 def best_buy(url):
     count = 0
     global bestbuy_available
-
     while True:
         count += 1
         try:
@@ -54,12 +73,11 @@ def best_buy(url):
         if str(result) != "<Response [200]>":
             print('\033[94m' + str(result) + " (Best Buy)", count)
             with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                server.login("notsecurecodingemail@gmail.com", password)
+                server.login(server_email, password)
                 sender_email = "notsecurecodingemail@gmail.com"
                 message = "404 Best Buy, check site\nhttps://www.bestbuy.com/site/sony-playstation-5-console/6426149.p?skuId=6426149\n"
                 # server.sendmail(sender_email, devante, message)
         else:
-
             try:
                 # print(result.text)
                 soup = BeautifulSoup(result.text, 'html.parser')
@@ -90,8 +108,9 @@ def best_buy(url):
                 button = find_div.find('button')
                 # print(button.prettify())
                 # print(button.text)
+                buttonText = button.text
 
-                if button.text == "Sold Out":
+                if buttonText.lower() == "sold out":
                     print('\033[94m' + "PS5 sold out (Best Buy)   attempt #: ", count)
                     bestbuy_available = False
                 else:
@@ -99,14 +118,15 @@ def best_buy(url):
                     # print(button.text)
                     if not bestbuy_available:
                         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                            server.login("notsecurecodingemail@gmail.com", password)
+                            server.login(server_email, password)
                             sender_email = "notsecurecodingemail@gmail.com"
                             message = "THIS IS DEVANTE'S PROGRAMM NOTIFYING YOU IN REAL TIME THAT THE PS5 IS AVAILABLE AT\nhttps://www.bestbuy.com/site/sony-playstation-5-console/6426149.p?skuId=6426149\n"
                             server.sendmail(sender_email, devante, message)
                             server.sendmail(sender_email, alycia, message)
-                            server.sendmail(sender_email, alex, message)
-                            server.sendmail(sender_email, jude, message)
-                        subprocess.call(["afplay", audio_file])
+                            subprocess.call(["afplay", audio_file])
+                            time.sleep(180)
+                            #server.sendmail(sender_email, alex, message)
+                            #server.sendmail(sender_email, jude, message)
                     bestbuy_available = True
                     time.sleep(300)
             except:
@@ -114,8 +134,8 @@ def best_buy(url):
                 print('\033[94m' + "Page HTML contents have changed (Best Buy). Check and update at: ", url)
                 # Send notification email
                 with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                    server.login("notsecurecodingemail@gmail.com", password)
-                    sender_email = "notsecurecodingemail@gmail.com"
+                    server.login(server_email, password)
+                    sender_email = server_email
                     message = "Page HTML contents have changed (Best Buy)\nhttps://www.bestbuy.com/site/sony-playstation-5-console/6426149.p?skuId=6426149\n"
                     server.sendmail(sender_email, devante, message)
                 #subprocess.call(["afplay", audio_file])
@@ -148,10 +168,10 @@ def walmart(url):
         except:
             print('\033[95m' + "Timeout has occurred: Walmart", count)
         if str(result) != "<Response [200]>":
-            print('\033[95m' + str(result) + " (Walmart)")
+            print('\033[95m' + str(result) + " (Walmart)", count)
             with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                server.login("notsecurecodingemail@gmail.com", password)
-                sender_email = "notsecurecodingemail@gmail.com"
+                server.login(server_email, password)
+                sender_email = server_email
                 message = "404 Walmart, check site\nhttps://www.walmart.com/ip/PlayStation-5-Console\n"
                 # server.sendmail(sender_email, devante, message)
         else:
@@ -166,12 +186,12 @@ def walmart(url):
                 print('\033[95m' + "Page is no longer an error page: Walmart")
                 if not walmart_available:
                     with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                        server.login("notsecurecodingemail@gmail.com", password)
-                        sender_email = "notsecurecodingemail@gmail.com"
+                        server.login(server_email, password)
+                        sender_email = server_email
                         message = "Walmart PS5 page is active, check at\nhttps://www.walmart.com/ip/PlayStation-5-Console\n"
                         server.sendmail(sender_email, devante, message)
                 walmart_available = True
-                subprocess.call(["afplay", audio_file])
+                # subprocess.call(["afplay", audio_file])
         time.sleep(15)
 
 
@@ -186,10 +206,10 @@ def game_stop(url):
             print('\033[92m' + "Timeout has occurred: Gamestop", count)
 
         if str(result) != "<Response [200]>":
-            print('\033[92m' + str(result) + " Not Found 404 (Gamestop)")
+            print('\033[92m' + str(result) + "(Gamestop)")
             with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                server.login("notsecurecodingemail@gmail.com", password)
-                sender_email = "notsecurecodingemail@gmail.com"
+                server.login(server_email, password)
+                sender_email = server_email
                 message = "404 GameStop, check site\nhttps//www.gamestop.com/video-games/playstation-5/consoles/products/playstation-5/11108140.html\n"
                 # server.sendmail(sender_email, devante, message)
         else:
@@ -228,11 +248,13 @@ def game_stop(url):
                     print('\033[92m' + "PS5 available at Game Stop :", url)
                     if not gamestop_available:
                         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                            server.login("notsecurecodingemail@gmail.com", password)
-                            sender_email = "notsecurecodingemail@gmail.com"
+                            server.login(server_email, password)
+                            sender_email = server_email
                             message = "THIS IS DEVANTE'S PROGRAMM NOTIFYING YOU IN REAL TIME THAT THE PS5 IS AVAILABLE AT\nhttps://www.gamestop.com/video-games/playstation-5/consoles/products/playstation-5/11108140.html""?condition=New\n"
                             server.sendmail(sender_email, devante, message)
                             server.sendmail(sender_email, alycia, message)
+                            subprocess.call(["afplay", audio_file])
+                            time.sleep(180)
                             server.sendmail(sender_email, alex, message)
                             server.sendmail(sender_email, jude, message)
                         gamestop_available = True
@@ -243,12 +265,12 @@ def game_stop(url):
             except:
                 print('\033[92m' + "Page HTML contents have changed (GameStop). Check and update at: ", url)
                 with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                    server.login("notsecurecodingemail@gmail.com", password)
-                    sender_email = "notsecurecodingemail@gmail.com"
+                    server.login(server_email, password)
+                    sender_email = server_email
                     message = "Gamestop page contents have changed, check now at\nhttps://www.gamestop.com/video-games/playstation-5/consoles/products/playstation-5/11108140.html?condition=New\n"
                     # server.sendmail(sender_email, devante, message)
                 subprocess.call(["afplay", audio_file])
-        time.sleep(15)
+        time.sleep(25)
 
 
 def amazon(url, count):
@@ -264,8 +286,8 @@ def amazon(url, count):
         if str(result) != "<Response [200]>":
             print('\033[91m' + "Not Found 404 (Amazon)")
             with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                server.login("notsecurecodingemail@gmail.com", password)
-                sender_email = "notsecurecodingemail@gmail.com"
+                server.login(server_email, password)
+                sender_email = server_email
                 message = "404 Amazon, check site\nhttps://www.amazon.com/PlayStation-5-Console/dp/B08FC5L3RG?ref_=ast_sto_dp\n"
                 # server.sendmail(sender_email, devante, message)
         else:
@@ -302,8 +324,8 @@ def amazon(url, count):
                     global amazon_available
                     if not amazon_available:
                         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                            server.login("notsecurecodingemail@gmail.com", password)
-                            sender_email = "notsecurecodingemail@gmail.com"
+                            server.login(server_email, password)
+                            sender_email = server_email
                             message = "THE PS5 IS AVAILABLE AT\nhttps://www.amazon.com/PlayStation-5-Console/dp/B08FC5L3RG?ref_=ast_sto_dp\n"
                             server.sendmail(sender_email, devante, message)
                             server.sendmail(sender_email, alycia, message)
@@ -317,8 +339,8 @@ def amazon(url, count):
 
                 print('\033[91m' + "Page HTML contents have changed (Amazon). Check and update at: ", url)
                 with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                    server.login("notsecurecodingemail@gmail.com", password)
-                    sender_email = "notsecurecodingemail@gmail.com"
+                    server.login(server_email, password)
+                    sender_email = server_email
                     message = "Amazon page contents have changed, check now at\nhttps://www.amazon.com/PlayStation-5-Console/dp/B08FC5L3RG?ref_=ast_sto_dp\n"
                     # server.sendmail(sender_email, devante, message)
                 subprocess.call(["afplay", audio_file])
@@ -338,17 +360,16 @@ def playstation_direct(url):
         if str(result) != "<Response [200]>":
             print('\033[96m' + str(result) + " (Playstation Direct)")
             with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                server.login("notsecurecodingemail@gmail.com", password)
-                sender_email = "notsecurecodingemail@gmail.com"
+                server.login(server_email, password)
+                sender_email = server_email
                 message = "404 Playstation Direct, check site\nhttps://direct.playstation.com/en-us/consoles/console/playstation5-console.3005816\n"
                 # server.sendmail(sender_email, devante, message)
         else:
-
             try:
                 soup = BeautifulSoup(result.text, 'html.parser')
-                # print(soup.prettify())
+                print(soup.prettify())
                 body = soup.find('body', class_="page basicpage")
-                # print(body.prettify())
+                print(body.prettify())
                 div1 = body.find('div', class_="root responsivegrid")
                 # print(div1)
                 div2 = div1.find('div', class_="aem-Grid aem-Grid--12 aem-Grid--default--12")
@@ -380,8 +401,8 @@ def playstation_direct(url):
                     print('\033[96m' + "PS5 available at Playstation Direct :", url)
                     if not playstation_direct_available:
                         with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                            server.login("notsecurecodingemail@gmail.com", password)
-                            sender_email = "notsecurecodingemail@gmail.com"
+                            server.login(server_email, password)
+                            sender_email = server_email
                             message = "THE PS5 IS AVAILABLE AT\nhttps://direct.playstation.com/en-us/consoles/console/playstation5-console.3005816\n"
                             server.sendmail(sender_email, devante, message)
                             server.sendmail(sender_email, alycia, message)
@@ -394,11 +415,12 @@ def playstation_direct(url):
             except:
                 print('\033[96m' + "Page HTML contents have changed (Playstation Direct). Check and update at: ", url)
                 with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
-                    server.login("notsecurecodingemail@gmail.com", password)
-                    sender_email = "notsecurecodingemail@gmail.com"
+                    server.login(server_email, password)
+                    sender_email = server_email
                     message = "Playstation Direct page contents have changed, check now at\nhttps://direct.playstation.com/en-us/consoles/console/playstation5-console.3005816\n"
                     # server.sendmail(sender_email, devante, message)
-                subprocess.call(["afplay", audio_file])
+                # subprocess.call(["afplay", audio_file])
+                time.sleep(300)
         time.sleep(15)
 
 
@@ -408,10 +430,10 @@ if __name__ == '__main__':
     plystdir = threading.Thread(target=playstation_direct, args=("https://direct.playstation.com/en-us/consoles/console/playstation5-console.3005816", ))
     gmestp = threading.Thread(target=game_stop, args=("https://www.gamestop.com/video-games/playstation-5/consoles/products/playstation-5/11108140.html?condition=New", ))
 
-    bts_buy.start()
-    time.sleep(0.5)
     wlmrt.start()
     time.sleep(0.5)
-    plystdir.start()
+    # plystdir.start()
     time.sleep(0.5)
     gmestp.start()
+    time.sleep(1.0)
+    bts_buy.start()
