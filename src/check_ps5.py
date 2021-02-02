@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup
 import requests
 import subprocess
 import time
+import datetime
+now = datetime.datetime.now()
 
 usr_agent = ""
 
@@ -31,28 +33,28 @@ amazon_available = False
 playstation_direct_available = False
 
 f = open("credentials.txt", "r")
-count = 1
+countin = 1
 
 for line in f:
     # print(line)
     line = line.strip('\n')
-    if count == 1:
+    if countin == 1:
         usr_agent = line
-    if count == 2:
+    if countin == 2:
         password = line
-    if count == 3:
+    if countin == 3:
         devante = line
-    if count == 4:
+    if countin == 4:
         alycia = line
-    if count == 5:
+    if countin == 5:
         alex = line
-    if count == 6:
+    if countin == 6:
         jude = line
-    if count == 7:
+    if countin == 7:
         audio_file = line
-    if count == 8:
+    if countin == 8:
         server_email = line
-    count += 1
+    countin += 1
 
 
 headers = {
@@ -68,10 +70,10 @@ def best_buy(url):
         try:
             result = requests.get(url, headers=headers)
         except:
-            print('\033[94m' + "Timeout has occurred: Best Buy ", count)
+            print('\033[94m' + "Timeout has occurred: Best Buy ", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
 
         if str(result) != "<Response [200]>":
-            print('\033[94m' + str(result) + " (Best Buy)", count)
+            print('\033[94m' + str(result) + " (Best Buy)", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
             with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
                 server.login(server_email, password)
                 sender_email = "notsecurecodingemail@gmail.com"
@@ -111,7 +113,7 @@ def best_buy(url):
                 buttonText = button.text
 
                 if buttonText.lower() == "sold out":
-                    print('\033[94m' + "PS5 sold out (Best Buy)   attempt #: ", count)
+                    print('\033[94m' + "PS5 sold out (Best Buy)   attempt #: ", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
                     bestbuy_available = False
                 else:
                     print('\033[94m' + "PS5 available at Best Buy :", url)
@@ -166,9 +168,9 @@ def walmart(url):
         try:
             result = requests.get(url, headers=headers)
         except:
-            print('\033[95m' + "Timeout has occurred: Walmart", count)
+            print('\033[95m' + "Timeout has occurred: Walmart", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
         if str(result) != "<Response [200]>":
-            print('\033[95m' + str(result) + " (Walmart)", count)
+            print('\033[95m' + str(result) + " (Walmart)    attempt #:", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
             with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
                 server.login(server_email, password)
                 sender_email = server_email
@@ -180,7 +182,7 @@ def walmart(url):
                 body = soup.find('body')
                 div1 = body.find('div')
                 div2 = div1.find('div', class_="error-page-content")
-                print('\033[95m' + "Walmart PS5 landing page is not created yet ", count)
+                print('\033[95m' + "Walmart PS5 landing page is not created yet ", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
                 walmart_available = False
             except:
                 print('\033[95m' + "Page is no longer an error page: Walmart")
@@ -188,7 +190,7 @@ def walmart(url):
                     with smtplib.SMTP_SSL("smtp.gmail.com", port) as server:
                         server.login(server_email, password)
                         sender_email = server_email
-                        message = "Walmart PS5 page is active, check at\nhttps://www.walmart.com/ip/PlayStation-5-Console\n"
+                        message = "Walmart PS5 page might be active, check at\nhttps://www.walmart.com/ip/PlayStation-5-Console\n"
                         server.sendmail(sender_email, devante, message)
                 walmart_available = True
                 # subprocess.call(["afplay", audio_file])
@@ -203,7 +205,7 @@ def game_stop(url):
         try:
             result = requests.get(url, headers=headers)
         except:
-            print('\033[92m' + "Timeout has occurred: Gamestop", count)
+            print('\033[92m' + "Timeout has occurred: Gamestop", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
 
         if str(result) != "<Response [200]>":
             print('\033[92m' + str(result) + "(Gamestop)")
@@ -241,7 +243,7 @@ def game_stop(url):
                 # print(info_jason)
 
                 if info_jason["productInfo"]["availability"] == "Not Available":
-                    print('\033[92m' + "PS5 sold out (Game Stop)   attempt #: ", count)
+                    print('\033[92m' + "PS5 sold out (Game Stop)   attempt #: ", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
                     gamestop_available = False
 
                 else:
@@ -281,7 +283,7 @@ def amazon(url, count):
         try:
             result = requests.get(url, headers=headers)
         except:
-            print('\033[91m' + "Timeout has occurred: Amazon", count)
+            print('\033[91m' + "Timeout has occurred: Amazon", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
             return False
         if str(result) != "<Response [200]>":
             print('\033[91m' + "Not Found 404 (Amazon)")
@@ -318,7 +320,7 @@ def amazon(url, count):
                 availability = availability.strip()
                 # print(availability)
                 if availability == "Currently unavailable.":
-                    print('\033[91m' + "PS5 sold out (Amazon)   attempt #: ", count)
+                    print('\033[91m' + "PS5 sold out (Amazon)   attempt #: ", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
                 else:
                     print('\033[91m' + "PS5 available at Amazon :", url)
                     global amazon_available
@@ -355,7 +357,7 @@ def playstation_direct(url):
         try:
             result = requests.get(url, headers=headers)
         except:
-            print('\033[96m' + "Timeout has occurred: Playstation Direct", count)
+            print('\033[96m' + "Timeout has occurred: Playstation Direct", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
 
         if str(result) != "<Response [200]>":
             print('\033[96m' + str(result) + " (Playstation Direct)")
@@ -395,7 +397,7 @@ def playstation_direct(url):
                 stock = div11.find('p', class_="sony-text-body-1")
                 # print(stock.text)
                 if stock.text == "Out of Stock":
-                    print('\033[96m' + "PS5 sold out (Playstation Direct)   attempt #: ", count)
+                    print('\033[96m' + "PS5 sold out (Playstation Direct)   attempt #: ", count, " ", "Time :", now.strftime("%Y-%m-%d %H:%M:%S"))
                     playstation_direct_available = False
                 else:
                     print('\033[96m' + "PS5 available at Playstation Direct :", url)
@@ -424,12 +426,21 @@ def playstation_direct(url):
         time.sleep(15)
 
 
+def update_time():
+    global now
+    while True:
+        now = datetime.datetime.now()
+        time.sleep(1)
+
+
 if __name__ == '__main__':
     bts_buy = threading.Thread(target=best_buy, args=("https://www.bestbuy.com/site/sony-playstation-5-console/6426149.p?skuId=6426149", ))
     wlmrt = threading.Thread(target=walmart, args=("https://www.walmart.com/ip/PlayStation-5-Console", ))
     plystdir = threading.Thread(target=playstation_direct, args=("https://direct.playstation.com/en-us/consoles/console/playstation5-console.3005816", ))
     gmestp = threading.Thread(target=game_stop, args=("https://www.gamestop.com/video-games/playstation-5/consoles/products/playstation-5/11108140.html?condition=New", ))
+    update = threading.Thread(target=update_time)
 
+    update.start()
     wlmrt.start()
     time.sleep(0.5)
     # plystdir.start()
@@ -437,3 +448,4 @@ if __name__ == '__main__':
     gmestp.start()
     time.sleep(1.0)
     bts_buy.start()
+
